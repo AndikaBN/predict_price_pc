@@ -1,43 +1,49 @@
 import streamlit as st
 import pandas as pd
-import pickle
+import joblib  # Gunakan joblib untuk memuat model
 import requests
-# import sklearn
 import os
 
+# Fungsi untuk memuat data CSV
 @st.cache_data
 def load_data():
     return pd.read_csv('https://raw.githubusercontent.com/AndikaBN/predict_price_pc/refs/heads/main/laptop_data.csv')
 
+# Fungsi untuk memuat model
 @st.cache_resource
 def load_model():
     url = 'https://drive.google.com/uc?id=1ktcqRauXebQCm32e77KYAdSMc4gJTiBb'
-    model_path = 'laptop_model.pkl'
+    model_path = 'laptop_model_joblib.pkl'  # Menggunakan format joblib
 
+    # Unduh model jika belum ada
     if not os.path.exists(model_path):
+        st.write('Downloading model...')
         response = requests.get(url)
         with open(model_path, 'wb') as f:
             f.write(response.content)
         st.write('Model downloaded successfully.')
 
+    # Muat model
     st.write(f'Loading model from {model_path}...')
-    with open(model_path, 'rb') as file:
-        try:
-            model = pickle.load(file)
-            st.write('Model loaded successfully.')
-        except Exception as e:
-            st.error(f'Error loading model: {e}')
-            raise
+    try:
+        with open(model_path, 'rb') as file:
+            model = joblib.load(file)
+        st.write('Model loaded successfully.')
+    except Exception as e:
+        st.error(f'Error loading model: {e}')
+        raise
     return model
 
-
+# Fungsi utama aplikasi
 def main():
     st.title('Laptop Price Prediction')
 
+    # Muat data
     data = load_data()
 
     st.sidebar.header('Input Features')
 
+    # Fungsi untuk mengatur input dari user
     def user_input_features():
         features = {}
         for col in data.columns[:-1]:
@@ -51,18 +57,22 @@ def main():
                 )
         return pd.DataFrame(features, index=[0])
 
+    # Ambil input dari user
     input_df = user_input_features()
 
     st.write('### Input Features')
     st.write(input_df)
 
+    # Muat model
     model = load_model()
 
+    # Prediksi harga laptop
     if st.button('Predict'):
         prediction = model.predict(input_df)
         formatted_prediction = f'$ {prediction[0]:,.2f}'
         st.write('### Predicted Laptop Price')
         st.write(formatted_prediction)
 
+# Jalankan aplikasi
 if __name__ == '__main__':
     main()
