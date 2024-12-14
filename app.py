@@ -10,17 +10,25 @@ def load_data():
 
 @st.cache_resource
 def load_model():
-    url = 'https://drive.google.com/uc?export=download&id=1ktcqRauXebQCm32e77KYAdSMc4gJTiBb'
+    url = 'https://drive.google.com/uc?id=1ktcqRauXebQCm32e77KYAdSMc4gJTiBb'
     model_path = 'laptop_model.pkl'
 
     if not os.path.exists(model_path):
         response = requests.get(url)
         with open(model_path, 'wb') as f:
             f.write(response.content)
+        st.write('Model downloaded successfully.')
 
+    st.write(f'Loading model from {model_path}...')
     with open(model_path, 'rb') as file:
-        model = pickle.load(file)
+        try:
+            model = pickle.load(file)
+            st.write('Model loaded successfully.')
+        except Exception as e:
+            st.error(f'Error loading model: {e}')
+            raise
     return model
+
 
 def main():
     st.title('Laptop Price Prediction')
