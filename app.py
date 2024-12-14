@@ -1,16 +1,28 @@
 import streamlit as st
 import pandas as pd
 import pickle
+import requests
+import os
 
 # Load data
 @st.cache_data
 def load_data():
     return pd.read_csv('https://raw.githubusercontent.com/AndikaBN/predict_price_pc/refs/heads/main/laptop_data.csv')
 
-# Load model
+# Download dan load model
 @st.cache_resource
 def load_model():
-    with open('https://drive.google.com/drive/folders/1XNia79bAn5iUbVZBr2Njnom3EofFzf0H', 'rb') as file:
+    url = 'https://drive.google.com/uc?export=download&id=FILE_ID'  # Replace FILE_ID
+    model_path = 'laptop_model.pkl'
+
+    # Unduh model jika belum ada
+    if not os.path.exists(model_path):
+        with open(model_path, 'wb') as f:
+            response = requests.get(url)
+            f.write(response.content)
+
+    # Load model dari file lokal
+    with open(model_path, 'rb') as file:
         model = pickle.load(file)
     return model
 
@@ -23,7 +35,7 @@ def main():
 
     # Sidebar untuk input fitur
     st.sidebar.header('Input Features')
-    
+
     def user_input_features():
         features = {}
         for col in data.columns[:-1]:  # Exclude the target column
@@ -32,9 +44,9 @@ def main():
             else:
                 features[col] = st.sidebar.number_input(f'Enter {col}', min_value=float(data[col].min()), max_value=float(data[col].max()))
         return pd.DataFrame(features, index=[0])
-    
+
     input_df = user_input_features()
-    
+
     # Tampilkan input fitur
     st.write('### Input Features')
     st.write(input_df)
