@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 import requests
-import sklearn
+# import sklearn
 import os
 
 @st.cache_data
