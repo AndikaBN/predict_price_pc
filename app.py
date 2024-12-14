@@ -5,7 +5,7 @@ import pickle
 # Load data
 @st.cache_data
 def load_data():
-    return pd.read_csv('https://github.com/AndikaBN/predict_price_pc/blob/main/laptop_data.pkl')
+    return pd.read_csv('https://raw.githubusercontent.com/AndikaBN/predict_price_pc/refs/heads/main/laptop_data.csv')
 
 # Load model
 @st.cache_resource
