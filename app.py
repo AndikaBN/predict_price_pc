@@ -10,12 +10,12 @@ def load_data():
 
 @st.cache_resource
 def load_model():
-    url = 'https://drive.google.com/file/d/1ktcqRauXebQCm32e77KYAdSMc4gJTiBb/view?usp=sharing'
+    url = 'https://drive.google.com/uc?export=download&id=1ktcqRauXebQCm32e77KYAdSMc4gJTiBb'
     model_path = 'laptop_model.pkl'
 
     if not os.path.exists(model_path):
+        response = requests.get(url)
         with open(model_path, 'wb') as f:
-            response = requests.get(url)
             f.write(response.content)
 
     with open(model_path, 'rb') as file:
@@ -31,11 +31,15 @@ def main():
 
     def user_input_features():
         features = {}
-        for col in data.columns[:-1]: 
-            if data[col].dtype == 'object':
+        for col in data.columns[:-1]:
+            if data[col].dtype == 'object': 
                 features[col] = st.sidebar.selectbox(f'Select {col}', data[col].unique())
-            else:
-                features[col] = st.sidebar.number_input(f'Enter {col}', min_value=float(data[col].min()), max_value=float(data[col].max()))
+            else:  
+                features[col] = st.sidebar.number_input(
+                    f'Enter {col}',
+                    min_value=float(data[col].min()),
+                    max_value=float(data[col].max())
+                )
         return pd.DataFrame(features, index=[0])
 
     input_df = user_input_features()
