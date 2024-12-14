@@ -10,7 +10,7 @@ def load_data():
 # Load model
 @st.cache_resource
 def load_model():
-    with open('laptop_model.pkl', 'rb') as file:
+    with open('https://drive.google.com/drive/folders/1XNia79bAn5iUbVZBr2Njnom3EofFzf0H', 'rb') as file:
         model = pickle.load(file)
     return model
 
