@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import joblib  # Gunakan joblib untuk memuat model
+import joblib
 import requests
 import os
 
@@ -13,7 +13,7 @@ def load_data():
 @st.cache_resource
 def load_model():
     url = 'https://drive.google.com/uc?id=1ktcqRauXebQCm32e77KYAdSMc4gJTiBb'
-    model_path = 'laptop_model_joblib.pkl'  # Menggunakan format joblib
+    model_path = 'laptop_model.pkl'
 
     # Unduh model jika belum ada
     if not os.path.exists(model_path):
@@ -26,8 +26,7 @@ def load_model():
     # Muat model
     st.write(f'Loading model from {model_path}...')
     try:
-        with open(model_path, 'rb') as file:
-            model = joblib.load(file)
+        model = joblib.load(model_path)
         st.write('Model loaded successfully.')
     except Exception as e:
         st.error(f'Error loading model: {e}')
@@ -68,10 +67,14 @@ def main():
 
     # Prediksi harga laptop
     if st.button('Predict'):
-        prediction = model.predict(input_df)
-        formatted_prediction = f'$ {prediction[0]:,.2f}'
-        st.write('### Predicted Laptop Price')
-        st.write(formatted_prediction)
+        try:
+            # Pastikan input_df hanya berisi kolom fitur yang diharapkan oleh model
+            prediction = model.predict(input_df)
+            formatted_prediction = f'$ {prediction[0]:,.2f}'
+            st.write('### Predicted Laptop Price')
+            st.write(formatted_prediction)
+        except Exception as e:
+            st.error(f'Error making prediction: {e}')
 
 # Jalankan aplikasi
 if __name__ == '__main__':
